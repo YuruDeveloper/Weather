@@ -13,7 +13,8 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
-
+using Microsoft.UI.Windowing;
+using Microsoft.UI;
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
 
@@ -28,7 +29,12 @@ namespace Weather
         public MainWindow()
         {
             this.InitializeComponent();
-            Data = new WeatherDust("C:\\Users\\Cecil\\Desktop\\Weather\\Data\\WeatherXY.csv");
+            IntPtr WindowHandle = WinRT.Interop.WindowNative.GetWindowHandle(this);
+            var WindowID = Win32Interop.GetWindowIdFromWindow(WindowHandle);
+            AppWindow AppWindow = AppWindow.GetFromWindowId(WindowID);
+            AppWindow.Resize(new Windows.Graphics.SizeInt32(400, 400));
+            string CsvPath = Windows.ApplicationModel.Package.Current.InstalledPath + "\\Assets\\WeatherXY.csv";
+            Data = new WeatherDust(CsvPath);
         }
     }
 }

@@ -8,11 +8,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Title="Weather">
-
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Button x:ConnectionId='2' x:Name="myButton"                       >Click Me</Button>
+    <Grid Background="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="400" Height="400">
         
-        <TextBlock x:ConnectionId='3' Name="Location" />
-    </StackPanel>
+    </Grid>
 </Window>
 

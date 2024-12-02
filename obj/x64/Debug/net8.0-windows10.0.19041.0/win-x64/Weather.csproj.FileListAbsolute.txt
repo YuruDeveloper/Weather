@@ -266,3 +266,4 @@ C:\Users\Cecil\Desktop\Weather\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\
 C:\Users\Cecil\Desktop\Weather\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\zh-Hans\FSharp.Core.resources.dll
 C:\Users\Cecil\Desktop\Weather\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\zh-Hant\FSharp.Core.resources.dll
 C:\Users\Cecil\Desktop\Weather\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Newtonsoft.Json.dll
+C:\Users\Cecil\Desktop\Weather\obj\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Weather.sourcelink.json

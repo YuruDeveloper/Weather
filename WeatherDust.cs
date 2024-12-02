@@ -18,7 +18,7 @@ public class WeatherDust {
     private const string GetNearByMsrstnUrl = "https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList";
     private const string GetDustDataUrl = "https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty";
     private const string GetWeatherDataUrl = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst";
-  
+
 
     private int WeatherX, WeatherY;
     private string DustLocationName = "";
@@ -49,8 +49,8 @@ public class WeatherDust {
         var SelectedData = Data.Columns[new[] { "3단계", "격자 X", "격자 Y", "경도(시)", "경도(분)", "위도(시)", "위도(분)" }];
         var Filtered = SelectedData.Rows.Where(SelectedData => (SelectedData.Value.GetAs<int>("경도(시)") ==  LongitudeHour& SelectedData.Value.GetAs<int>("위도(시)") == LatiudeHour));
         var Value = Frame.FromRows(Filtered);
-        Filtered = Value.Rows.Where(Value => (Value.Value.GetAs<int>("경도(분)") <= LongitudeMinte + 10&& Value.Value.GetAs<int>("경도(분)") >= LongitudeMinte - 10 
-                                            && Value.Value.GetAs<int>("위도(분)") <= LatiudeMinute  + 10&& Value.Value.GetAs<int>("위도(분)") >= LatiudeMinute - 10));
+        Filtered = Value.Rows.Where(Value => (Value.Value.GetAs<int>("경도(분)") <= LongitudeMinte + 25&& Value.Value.GetAs<int>("경도(분)") >= LongitudeMinte - 25 
+                                            && Value.Value.GetAs<int>("위도(분)") <= LatiudeMinute  + 25&& Value.Value.GetAs<int>("위도(분)") >= LatiudeMinute - 25));
         Value = Frame.FromRows(Filtered);
         var ResultFirst = Frame.FromRows(Filtered).Rows.FirstValue();
         
@@ -68,6 +68,8 @@ public class WeatherDust {
         Result = await GetResult(Url);
         StationItem Station = JsonSerializer.Deserialize<Root<DustBody<StationItem>>>(Result).response.body.items[0];
         DustLocationName = Station.stationName;
+
+        GetData();
     }
 
     private async Task<Geoposition> GetLoocation() {

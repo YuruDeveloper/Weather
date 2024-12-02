@@ -12,21 +12,34 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Data\**" />
+    <EmbeddedResource Remove="Data\**" />
+    <None Remove="Data\**" />
+    <Page Remove="Data\**" />
+  </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Assets\SplashScreen.scale-200.png" />
-    <Content Include="Assets\LockScreenLogo.scale-200.png" />
-    <Content Include="Assets\Square150x150Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.scale-200.png" />
-    <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
-    <Content Include="Assets\StoreLogo.png" />
-    <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+    <Content Include="Assets\WeatherXY.csv"/>
+    <Content Include="Assets\Clude.png"/>
+    <Content Include="Assets\CludeMoon.png"/>
+    <Content Include="Assets\ClundSun.png"/>
+    <Content Include="Assets\humidity.png"/>
+    <Content Include="Assets\Moon.png"/>
+    <Content Include="Assets\Sun.png"/>
+    <Content Include="Assets\RainCldue.png"/>
+    <Content Include="Assets\refresh.png"/>
+    <Content Include="Assets\temperature.png"/>
+    <Content Include="Assets\SnowClude.png"/>
+    <Content Include="Assets\FaceTired.png"/>
+    <Content Include="Assets\FaceFrown.png"/>
+    <Content Include="Assets\FaceMeh.png"/>
+    <Content Include="Assets\FaceLaugh.png"/>
   </ItemGroup>
 
   <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
-
   <!--
     Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
     Tools extension to be activated for this project even if the Windows App SDK Nuget
@@ -40,9 +53,6 @@
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.241114003" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Data\" />
   </ItemGroup>
 
   <!--
@@ -62,4 +72,7 @@
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
     <DefaultLanguage>en</DefaultLanguage>
   </PropertyGroup>
+  <ItemGroup>
+    <PRIResource Remove="Data\**" />
+  </ItemGroup>
 </Project>
