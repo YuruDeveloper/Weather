@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-public class Root<T>
-{
+public class Root<T>{
     public Response<T> response { get; set; }
 }
 
@@ -82,4 +81,19 @@ public class WeatherItem
     public int nx { get; set; }
     public  int ny { get; set; }
     public string obsrValue { get; set; }
+}
+
+public class WeatherDustData { 
+    public WeatherEnum Weather {  get; set; }
+    public DustEnum Dust { get; set; }
+
+    public double Temperaure { get; set; }
+    public double humidity { get; set; }
+}
+
+public enum WeatherEnum { 
+    Sunny , LittleClude , RangeClude , Raniny, Snow , Moon , LiitleMoon
+}
+public enum DustEnum { 
+    VeryBad, Bad , Nomal , Good
 }

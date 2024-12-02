@@ -11,7 +11,8 @@ using Deedle;
 using System.Text.Json;
 
 
-public class WeatherDust {
+public class WeatherDust
+{
 
     private const string ApiKey = "?serviceKey=" + "Ou7f1o5T7YtUzYjYsoqe7ufinRZxkV4DASUjnQYoZyAnXJcAAG7bn3MtsZ%2Fw4hGfRqcnSwfgploBvvUZi6J%2BEA%3D%3D";
     private const string GetTMUrl = "https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt";
@@ -26,34 +27,37 @@ public class WeatherDust {
     private static HttpClient Client;
     private DustItem Dust;
     private List<WeatherItem> WeatherItems;
-    public WeatherDust(string CsvPath) {
+    private WeatherDustData Data;
+    public WeatherDust(string CsvPath)
+    {
         this.CsvPath = CsvPath;
         Client = new HttpClient();
         Init();
     }
 
-    private async void Init() {
+    private async void Init()
+    {
 
         //Get Position
         var Position = await GetLoocation();
         double Latitude = Position.Coordinate.Latitude;
         double Longitude = Position.Coordinate.Longitude;
-        
+
         int LatiudeHour = (int)Latitude;
         int LatiudeMinute = (int)((Latitude - (int)Latitude) * 100);
         int LongitudeHour = (int)Longitude;
         int LongitudeMinte = (int)((Longitude - (int)Longitude) * 100);
-        
+
         //tranform
         var Data = Frame.ReadCsv(CsvPath);
         var SelectedData = Data.Columns[new[] { "3단계", "격자 X", "격자 Y", "경도(시)", "경도(분)", "위도(시)", "위도(분)" }];
-        var Filtered = SelectedData.Rows.Where(SelectedData => (SelectedData.Value.GetAs<int>("경도(시)") ==  LongitudeHour& SelectedData.Value.GetAs<int>("위도(시)") == LatiudeHour));
+        var Filtered = SelectedData.Rows.Where(SelectedData => (SelectedData.Value.GetAs<int>("경도(시)") == LongitudeHour & SelectedData.Value.GetAs<int>("위도(시)") == LatiudeHour));
         var Value = Frame.FromRows(Filtered);
-        Filtered = Value.Rows.Where(Value => (Value.Value.GetAs<int>("경도(분)") <= LongitudeMinte + 25&& Value.Value.GetAs<int>("경도(분)") >= LongitudeMinte - 25 
-                                            && Value.Value.GetAs<int>("위도(분)") <= LatiudeMinute  + 25&& Value.Value.GetAs<int>("위도(분)") >= LatiudeMinute - 25));
+        Filtered = Value.Rows.Where(Value => (Value.Value.GetAs<int>("경도(분)") <= LongitudeMinte + 25 && Value.Value.GetAs<int>("경도(분)") >= LongitudeMinte - 25
+                                            && Value.Value.GetAs<int>("위도(분)") <= LatiudeMinute + 25 && Value.Value.GetAs<int>("위도(분)") >= LatiudeMinute - 25));
         Value = Frame.FromRows(Filtered);
         var ResultFirst = Frame.FromRows(Filtered).Rows.FirstValue();
-        
+
         WeatherX = (int)ResultFirst["격자 X"];
         WeatherY = (int)ResultFirst["격자 Y"];
         DustLocationName = ResultFirst["3단계"].ToString();
@@ -72,20 +76,23 @@ public class WeatherDust {
         GetData();
     }
 
-    private async Task<Geoposition> GetLoocation() {
+    private async Task<Geoposition> GetLoocation()
+    {
         Geolocator geolocator = new Geolocator { DesiredAccuracy = PositionAccuracy.High };
         Geoposition position = await geolocator.GetGeopositionAsync();
         return position;
     }
 
-    private async Task<string> GetResult(string Url) {
+    private async Task<string> GetResult(string Url)
+    {
         HttpResponseMessage response = await Client.GetAsync(Url);
         response.EnsureSuccessStatusCode();
         string jsonResponse = await response.Content.ReadAsStringAsync();
         return jsonResponse;
     }
 
-    private async void GetDustData() {
+    private async void GetDustData()
+    {
         string Url = string.Empty;
         string Result = string.Empty;
 
@@ -100,20 +107,89 @@ public class WeatherDust {
         string Result = string.Empty;
         DateTime CurrentTime = DateTime.Now;
 
-        Url = GetWeatherDataUrl + ApiKey + "&dataType=json" + "&nx=" + WeatherX.ToString() + "&ny=" + WeatherY.ToString() + "&base_date=" + CurrentTime.Year.ToString() + CurrentTime.Month + CurrentTime.Day.ToString() + "&base_time=" + (CurrentTime.Hour -1) + "00";
+        Url = GetWeatherDataUrl + ApiKey + "&dataType=json" + "&nx=" + WeatherX.ToString() + "&ny=" + WeatherY.ToString() + "&base_date=" + CurrentTime.Year.ToString() + CurrentTime.Month + CurrentTime.Day.ToString() + "&base_time=" + (CurrentTime.Hour - 1) + "00";
         Result = await GetResult(Url);
-        WeatherItems  = JsonSerializer.Deserialize<Root<WeatherBody>>(Result).response.body.items.item;
+        WeatherItems = JsonSerializer.Deserialize<Root<WeatherBody>>(Result).response.body.items.item;
     }
 
-   public  void GetData() {
+    public void GetData()
+    {
         GetDustData();
         GetWeatherData();
     }
-    public DustItem GetDust() {
-        return Dust;
-    }
-    public List<WeatherItem> GetWeather()
+
+    public WeatherDustData GetWeahterDust()
     {
-        return WeatherItems;
+        Data = new WeatherDustData();
+        double DustDouble = double.Parse(Dust.pm10Value);
+        if (DustDouble <= 50)
+        {
+            Data.Dust = DustEnum.Good;
+        }
+        else if (DustDouble <= 100)
+        {
+            Data.Dust = DustEnum.Nomal;
+        }
+        else if (DustDouble <= 250)
+        {
+            Data.Dust = DustEnum.Bad;
+        }
+        else
+        {
+            Data.Dust = DustEnum.VeryBad;
+        }
+        for (int i = 0; i < WeatherItems.Count; i++)
+        {
+            switch (WeatherItems[i].category)
+            {
+                case "T1H":
+                    Data.Temperaure = double.Parse(WeatherItems[i].obsrValue);
+                    break;
+                case "REH":
+                    Data.humidity = double.Parse(WeatherItems[i].obsrValue);
+                    break;
+                case "SKY":
+                    if (!(Data.Weather == WeatherEnum.Raniny || Data.Weather == WeatherEnum.Snow))
+                    {
+                        int hour = DateTime.Now.Hour;
+                        int k = int.Parse(WeatherItems[i].obsrValue);
+                        switch (k)
+                        {
+                            case 1:
+                                Data.Weather = hour >= 18 ? WeatherEnum.Moon : WeatherEnum.Sunny;
+                                break;
+                            case 2:
+                                Data.Weather = hour >= 18 ? WeatherEnum.LiitleMoon : WeatherEnum.LittleClude;
+                                break;
+                            case 3:
+                            case 4:
+                                Data.Weather = WeatherEnum.RangeClude;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    break;
+                case "PTY":
+                    int k = int.Parse(WeatherItems[i].obsrValue);
+                    switch (k)
+                    {
+                        case 1:
+                        case 2:
+                            Data.Weather = WeatherEnum.Raniny;
+                            break;
+                        case 3:
+                        case 4:
+                            Data.Weather = WeatherEnum.Snow;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+        return Data;
     }
 }
