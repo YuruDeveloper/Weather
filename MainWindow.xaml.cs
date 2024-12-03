@@ -34,7 +34,7 @@ namespace Weather
             AppWindow AppWindow = AppWindow.GetFromWindowId(WindowID);
             AppWindow.Resize(new Windows.Graphics.SizeInt32(400, 400));
             string CsvPath = Windows.ApplicationModel.Package.Current.InstalledPath + "\\Assets\\WeatherXY.csv";
-            Data = new WeatherDust(CsvPath);
+            //   Data = new WeatherDust(CsvPath);
         }
     }
 }

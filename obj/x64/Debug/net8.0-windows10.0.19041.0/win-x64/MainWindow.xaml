@@ -9,7 +9,40 @@
     mc:Ignorable="d"
     Title="Weather">
     <Grid Background="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="400" Height="400">
-        
+        <Border Width="350" Height="350" CornerRadius="20" Background="#F0F0F0" BorderBrush="#D0D0D0" BorderThickness="2" Padding="10">
+            <Grid>
+                <!-- 이미지와 텍스트 배치 -->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <!-- 온도 -->
+                    <ColumnDefinition Width="*" />
+                    <!-- 이미지 -->
+                    <ColumnDefinition Width="Auto" />
+                    <!-- 습도 -->
+                </Grid.ColumnDefinitions>
+
+                <!-- 온도 -->
+                <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock x:ConnectionId='4' x:Name="TemperatureText" Text="25°C" FontSize="20" FontWeight="Bold" Foreground="#333" />
+                    <TextBlock Text="Temperature" FontSize="12" Foreground="#666" />
+                </StackPanel>
+
+                <!-- 날씨 이미지 -->
+                <Image x:ConnectionId='2' x:Name="WeatherImage" Grid.Column="1" Width="120" Height="120" HorizontalAlignment="Center"  Source="Assets/Sun.png"/>
+
+                <!-- 습도 -->
+                <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock x:ConnectionId='3' x:Name="HumidityText" Text="60%" FontSize="20" FontWeight="Bold" Foreground="#333" />
+                    <TextBlock Text="Humidity" FontSize="12" Foreground="#666" />
+                </StackPanel>
+
+                <!-- 새로고침 버튼 -->
+                <Button Grid.ColumnSpan="3" Width="40" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Background="Transparent" >
+                    <Image Source="Assets/refresh-icon.png" Width="30" Height="30" />
+                </Button>
+            </Grid>
+        </Border>
     </Grid>
 </Window>
 

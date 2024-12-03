@@ -106,9 +106,7 @@ public class WeatherDust
         string Url = string.Empty;
         string Result = string.Empty;
         DateTime CurrentTime = DateTime.Now;
-
-        Url = GetWeatherDataUrl + ApiKey + "&dataType=json" + "&nx=" + WeatherX.ToString() + "&ny=" + WeatherY.ToString() + "&base_date=" + CurrentTime.Year.ToString() + CurrentTime.Month + CurrentTime.Day.ToString() + "&base_time=" + (CurrentTime.Hour - 1) + "00";
-        Result = await GetResult(Url);
+       
         WeatherItems = JsonSerializer.Deserialize<Root<WeatherBody>>(Result).response.body.items.item;
     }
 
@@ -152,14 +150,14 @@ public class WeatherDust
                     if (!(Data.Weather == WeatherEnum.Raniny || Data.Weather == WeatherEnum.Snow))
                     {
                         int hour = DateTime.Now.Hour;
-                        int k = int.Parse(WeatherItems[i].obsrValue);
-                        switch (k)
+                        int j = int.Parse(WeatherItems[i].obsrValue);
+                        switch (j)
                         {
                             case 1:
-                                Data.Weather = hour >= 18 ? WeatherEnum.Moon : WeatherEnum.Sunny;
+                                Data.Weather =(hour >= 18 || hour <= 6) ? WeatherEnum.Moon : WeatherEnum.Sunny;
                                 break;
                             case 2:
-                                Data.Weather = hour >= 18 ? WeatherEnum.LiitleMoon : WeatherEnum.LittleClude;
+                                Data.Weather = (hour >= 18 || hour <= 6) ? WeatherEnum.LiitleMoon : WeatherEnum.LittleClude;
                                 break;
                             case 3:
                             case 4:
