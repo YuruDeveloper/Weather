@@ -8,31 +8,31 @@ using System.Net;
 using System.Net.Http;
 using System.IO;
 using Deedle;
-using System.Text.Json;
+using Newtonsoft;
+using Newtonsoft.Json;
 
 
 public class WeatherDust
 {
 
-    private const string ApiKey = "?serviceKey=" + "Ou7f1o5T7YtUzYjYsoqe7ufinRZxkV4DASUjnQYoZyAnXJcAAG7bn3MtsZ%2Fw4hGfRqcnSwfgploBvvUZi6J%2BEA%3D%3D";
+    private const string ApiKey = "?serviceKey=" + "ApiKey";
     private const string GetTMUrl = "https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getTMStdrCrdnt";
     private const string GetNearByMsrstnUrl = "https://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList";
     private const string GetDustDataUrl = "https://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty";
-    private const string GetWeatherDataUrl = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst";
-
+    private const string GetWeatherDataUrl = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst";
+    private const string GetWeatherUrl = "https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";
 
     private int WeatherX, WeatherY;
-    private string DustLocationName = "";
+    private List<string> DustLocationName = new List<string>();
     private string CsvPath;
     private static HttpClient Client;
-    private DustItem Dust;
-    private List<WeatherItem> WeatherItems;
     private WeatherDustData Data;
     public WeatherDust(string CsvPath)
     {
         this.CsvPath = CsvPath;
         Client = new HttpClient();
         Init();
+        Data = new WeatherDustData();
     }
 
     private async void Init()
@@ -60,20 +60,21 @@ public class WeatherDust
 
         WeatherX = (int)ResultFirst["격자 X"];
         WeatherY = (int)ResultFirst["격자 Y"];
-        DustLocationName = ResultFirst["3단계"].ToString();
+        string LocationName = ResultFirst["3단계"].ToString();
 
         //getData
-        string Url = GetTMUrl + ApiKey + "&returnType=json" + "&umdName=" + DustLocationName;
+        string Url = GetTMUrl + ApiKey + "&returnType=json" + "&umdName=" + LocationName;
 
         string Result = await GetResult(Url);
-        TMXYItem tmxy = JsonSerializer.Deserialize<Root<DustBody<TMXYItem>>>(Result).response.body.items[0];
+        TMXYItem tmxy = JsonConvert.DeserializeObject<Root<DustBody<TMXYItem>>>(Result).response.body.items[0];
 
         Url = GetNearByMsrstnUrl + ApiKey + "&returnType=json" + "&tmX=" + tmxy.tmX + "&tmY=" + tmxy.tmY;
         Result = await GetResult(Url);
-        StationItem Station = JsonSerializer.Deserialize<Root<DustBody<StationItem>>>(Result).response.body.items[0];
-        DustLocationName = Station.stationName;
-
-        GetData();
+        List<StationItem> Station = JsonConvert.DeserializeObject<Root<DustBody<StationItem>>>(Result).response.body.items;
+        for(int i = 0;i < Station.Count; i++)
+        {
+            DustLocationName.Add(Station[i].stationName);
+        }
     }
 
     private async Task<Geoposition> GetLoocation()
@@ -95,31 +96,23 @@ public class WeatherDust
     {
         string Url = string.Empty;
         string Result = string.Empty;
-
-        Url = GetDustDataUrl + ApiKey + "&returnType=json" + "&dataTerm=DAILY" + "&stationName=" + DustLocationName;
-        Result = await GetResult(Url);
-        Dust = JsonSerializer.Deserialize<Root<DustBody<DustItem>>>(Result).response.body.items[0];
-    }
-
-    private async void GetWeatherData()
-    {
-        string Url = string.Empty;
-        string Result = string.Empty;
-        DateTime CurrentTime = DateTime.Now;
-       
-        WeatherItems = JsonSerializer.Deserialize<Root<WeatherBody>>(Result).response.body.items.item;
-    }
-
-    public void GetData()
-    {
-        GetDustData();
-        GetWeatherData();
-    }
-
-    public WeatherDustData GetWeahterDust()
-    {
-        Data = new WeatherDustData();
-        double DustDouble = double.Parse(Dust.pm10Value);
+        DustItem Dust = new DustItem();
+        for (int i = 0; i < DustLocationName.Count; i++)
+        {
+            Url = GetDustDataUrl + ApiKey + "&returnType=json" + "&dataTerm=DAILY" + "&stationName=" + DustLocationName[i];
+            Result = await GetResult(Url);
+            
+            try
+            {
+                Dust = JsonConvert.DeserializeObject<Root<DustBody<DustItem>>>(Result).response.body.items[0];
+                break;
+            }
+            catch (Exception ex) {
+                continue;
+            }
+        }
+        double DustDouble;
+        DustDouble = double.Parse(Dust.pm10Value);
         if (DustDouble <= 50)
         {
             Data.Dust = DustEnum.Good;
@@ -136,25 +129,42 @@ public class WeatherDust
         {
             Data.Dust = DustEnum.VeryBad;
         }
-        for (int i = 0; i < WeatherItems.Count; i++)
-        {
-            switch (WeatherItems[i].category)
-            {
+    }
+
+    private async void GetWeatherData()
+    {
+        string Url = string.Empty;
+        string Result = string.Empty;
+        DateTime CurrentTime = DateTime.Now;
+        string Hour =(CurrentTime.Hour - 1) < 10 ? "0" : ""   + (CurrentTime.Hour - 1).ToString();
+        Url = GetWeatherDataUrl + ApiKey + "&dataType=json" + "&nx=" + WeatherX + "&ny=" + WeatherY + "&base_date=" + CurrentTime.ToString("yyyyMMdd")+ "&base_time=" + Hour + "00";
+        Result = await GetResult(Url);
+
+        List<WeatherDataItem> weatherDataItems = JsonConvert.DeserializeObject<Root<WeatherDataBody>>(Result).response.body.items.item;
+        for (int i = 0; i < weatherDataItems.Count; i++) {
+            switch (weatherDataItems[i].category) {
                 case "T1H":
-                    Data.Temperaure = double.Parse(WeatherItems[i].obsrValue);
+                    Data.Temperaure = double.Parse(weatherDataItems[i].obsrValue);
                     break;
                 case "REH":
-                    Data.humidity = double.Parse(WeatherItems[i].obsrValue);
+                    Data.humidity = double.Parse(weatherDataItems[i].obsrValue);
                     break;
+            }
+        }
+        Url = GetWeatherUrl + ApiKey + "&dataType=json" + "&nx=" + WeatherX + "&ny=" + WeatherY + "&base_date=" + CurrentTime.ToString("yyyyMMdd") + "&base_time=" + Hour + "00";
+        Result = await GetResult(Url);
+        List<WeatherSkyItem> weatherSkyItems = JsonConvert.DeserializeObject<Root<WeatherSkyBody>>(Result).response.body.items.item;
+        for (int i = 0; i < weatherSkyItems.Count; i++) {
+            switch (weatherSkyItems[i].category) {
                 case "SKY":
                     if (!(Data.Weather == WeatherEnum.Raniny || Data.Weather == WeatherEnum.Snow))
                     {
                         int hour = DateTime.Now.Hour;
-                        int j = int.Parse(WeatherItems[i].obsrValue);
+                        int j = int.Parse(weatherSkyItems[i].fcstValue);
                         switch (j)
                         {
                             case 1:
-                                Data.Weather =(hour >= 18 || hour <= 6) ? WeatherEnum.Moon : WeatherEnum.Sunny;
+                                Data.Weather = (hour >= 18 || hour <= 6) ? WeatherEnum.Moon : WeatherEnum.Sunny;
                                 break;
                             case 2:
                                 Data.Weather = (hour >= 18 || hour <= 6) ? WeatherEnum.LiitleMoon : WeatherEnum.LittleClude;
@@ -169,7 +179,7 @@ public class WeatherDust
                     }
                     break;
                 case "PTY":
-                    int k = int.Parse(WeatherItems[i].obsrValue);
+                    int k = int.Parse(weatherSkyItems[i].fcstValue);
                     switch (k)
                     {
                         case 1:
@@ -184,10 +194,17 @@ public class WeatherDust
                             break;
                     }
                     break;
-                default:
-                    break;
             }
         }
+    }
+    public void GetData()
+    {
+        GetWeatherData();
+        GetDustData();
+    }
+
+    public WeatherDustData GetWeahterDust()
+    {
         return Data;
     }
 }

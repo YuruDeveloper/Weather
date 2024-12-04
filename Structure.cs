@@ -9,16 +9,15 @@ public class Root<T>{
 }
 
 
-public class Response<T> 
+public class Response<T>
 {
-    public T body { get; set; }
     public Header header { get; set; }
+    public T body { get; set; }
 }
-
 public class Header
 {
-    public string resultMsg { get; set; }
     public string resultCode { get; set; }
+    public string resultMsg { get; set; }
 }
 
 
@@ -30,9 +29,13 @@ public class DustBody<T>
     public int numOfRows { get; set; }
 }
 
-public class WeatherBody {
+public class WeatherSkyBody {
     public string dataType { get; set; }
-    public WeatherItems items { get; set; }
+    public WeatherSkyItems items { get; set; }
+}
+public class WeatherDataBody {
+    public string dataType { get; set; }
+    public WeatherDataItems items { get; set; }
     public int pageNo { get; set; }
     public int numOfRows { get; set; }
     public int totalCount { get; set; }
@@ -69,18 +72,32 @@ public class DustItem
     public string no2Grade { get; set; }
     public string o3Flag { get; set; }
 }
-public class WeatherItems
-{
-    public List<WeatherItem> item { get; set; }
+public class WeatherDataItems {
+    public List<WeatherDataItem> item;
 }
-public class WeatherItem
+public class WeatherSkyItems
+{
+    public List<WeatherSkyItem> item;
+}
+public class WeatherDataItem
 {
     public string baseDate { get; set; }
     public string baseTime { get; set; }
     public string category { get; set; }
-    public int nx { get; set; }
-    public  int ny { get; set; }
+    public string nx { get; set; }
+    public string ny { get; set; }
     public string obsrValue { get; set; }
+}
+    public class WeatherSkyItem
+{
+    public string baseDate { get; set; }
+    public string baseTime { get; set; }
+    public string category { get; set; }
+    public string fcstDate { get; set; }
+    public string fcstTime { get; set; }
+    public string fcstValue { get; set; }
+    public int nx { get; set; }
+    public int ny { get; set; }
 }
 
 public class WeatherDustData { 

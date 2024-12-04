@@ -9,40 +9,45 @@
     mc:Ignorable="d"
     Title="Weather">
     <Grid Background="White" HorizontalAlignment="Center" VerticalAlignment="Center" Width="400" Height="400">
-        <Border Width="350" Height="350" CornerRadius="20" Background="#F0F0F0" BorderBrush="#D0D0D0" BorderThickness="2" Padding="10">
-            <Grid>
-                <!-- 이미지와 텍스트 배치 -->
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
-                    <!-- 온도 -->
-                    <ColumnDefinition Width="*" />
-                    <!-- 이미지 -->
-                    <ColumnDefinition Width="Auto" />
-                    <!-- 습도 -->
-                </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10"/>
+            <!-- 상단 영역 (날씨 이미지) -->
+            <RowDefinition Height="200" />
+            <!-- 중간 영역 (온도 및 세부정보) -->
+            <RowDefinition Height="100" />
+            <!-- 하단 영역 (버튼) -->
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
 
-                <!-- 온도 -->
-                <StackPanel Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock x:ConnectionId='4' x:Name="TemperatureText" Text="25°C" FontSize="20" FontWeight="Bold" Foreground="#333" />
-                    <TextBlock Text="Temperature" FontSize="12" Foreground="#666" />
-                </StackPanel>
+        <!-- 날씨 이미지 -->
+        <Image x:ConnectionId='2' x:Name="WeatherImage" Source="Assets/Sun.png" Width="150" Height="150"  Grid.Row="1" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <!-- 온도 -->
+        <StackPanel Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image Source="Assets/temperature.png" Width="40" Height="40" />
+            <TextBlock x:ConnectionId='7' x:Name="Temperature" Text="25°C" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center" Foreground="#000"/>
+        </StackPanel>
 
-                <!-- 날씨 이미지 -->
-                <Image x:ConnectionId='2' x:Name="WeatherImage" Grid.Column="1" Width="120" Height="120" HorizontalAlignment="Center"  Source="Assets/Sun.png"/>
+        <!-- 미세먼지 -->
+        <StackPanel Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image x:ConnectionId='5' x:Name="DustImage" Source="Assets/FaceMeh.png" Width="40" Height="40" />
+            <TextBlock x:ConnectionId='6' x:Name="Dust" Text="Good" FontSize="20" FontWeight="SemiBold"  HorizontalAlignment="Center" Foreground="#000"/>
+        </StackPanel>
+        <!-- 습도 -->
+        <StackPanel Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image  Source="Assets/humidity.png" Width="40" Height="40" />
+            <TextBlock x:ConnectionId='4' x:Name="Humidity" Text="60%" FontSize="20" FontWeight="SemiBold" HorizontalAlignment="Center" Foreground="#000" />
+        </StackPanel>
 
-                <!-- 습도 -->
-                <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    <TextBlock x:ConnectionId='3' x:Name="HumidityText" Text="60%" FontSize="20" FontWeight="Bold" Foreground="#333" />
-                    <TextBlock Text="Humidity" FontSize="12" Foreground="#666" />
-                </StackPanel>
-
-                <!-- 새로고침 버튼 -->
-                <Button Grid.ColumnSpan="3" Width="40" Height="40" HorizontalAlignment="Right" VerticalAlignment="Top"
-                        Background="Transparent" >
-                    <Image Source="Assets/refresh-icon.png" Width="30" Height="30" />
-                </Button>
-            </Grid>
-        </Border>
+        <!-- 새로고침 버튼 -->
+        <Button x:ConnectionId='3' Grid.Row="3" Grid.ColumnSpan="3" HorizontalAlignment="Center" VerticalAlignment="Center" Width="120" Height="40"                     >
+            <Image Source="Assets/refresh.png"/>
+        </Button>
+    
     </Grid>
 </Window>
 
